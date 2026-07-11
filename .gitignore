@@ -1,0 +1,6 @@
+ctr_env/
+.ipynb_checkpoints/
+__pycache__/
+.DS_Store
+.vscode/
+data/raw/

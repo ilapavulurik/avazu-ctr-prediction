@@ -1,0 +1,96 @@
+# Model Evaluation Metrics
+```mermaid
+flowchart TB
+
+    A["<b>MODEL EVALUATION FRAMEWORK</b><br/>Selected CTR Model: HistGradientBoosting"]
+
+    A --> B["<b>1. Validation Data</b>"]
+    B --> B1["Chronological validation dataset<br/>6,064,345 rows × 26 features"]
+    B1 --> B2["Evaluation sample<br/>1,000,000 impressions"]
+    B2 --> C["Generate predicted click probabilities"]
+
+    C --> D["<b>2. Probability Quality</b>"]
+    C --> E["<b>3. Ranking Performance</b>"]
+    C --> F["<b>4. Classification Threshold</b>"]
+    C --> G["<b>5. Probability Calibration</b>"]
+    C --> H["<b>6. Business Value</b>"]
+
+    D --> D1["Log Loss"]
+    D1 --> D2["<b>0.3743</b>"]
+    D2 --> D3["Primary CTR metric<br/>Lower value indicates more accurate probabilities"]
+
+    E --> E1["ROC-AUC"]
+    E1 --> E2["<b>0.6587</b>"]
+    E2 --> E3["Measures ranking of clicked impressions<br/>above non-clicked impressions"]
+
+    E --> E4["PR-AUC"]
+    E4 --> E5["<b>0.2601</b>"]
+    E5 --> E6["Focuses on the minority click class<br/>More meaningful than accuracy"]
+
+    F --> F1["Default Threshold: 0.50"]
+    F1 --> F2["Precision: <b>0.4677</b><br/>Recall: <b>0.0525</b>"]
+    F2 --> F3["<b>Critical Finding</b><br/>High precision but only about 5%<br/>of actual clicks are identified"]
+
+    F --> F4["Evaluate Thresholds<br/>0.05 to 0.50"]
+    F4 --> F5["Compare Precision, Recall and F1"]
+    F5 --> F6["<b>Best Candidate Threshold: 0.15</b>"]
+    F6 --> F7["Precision: <b>0.2283</b><br/>Recall: <b>0.4606</b><br/>F1 Score: <b>0.3052</b>"]
+    F7 --> F8["Captures more actual clicks while<br/>maintaining a practical balance"]
+
+    G --> G1["Calibration Curve"]
+    G1 --> G2["Compare predicted probability<br/>with observed click rate"]
+    G2 --> G3["<b>Result</b><br/>Reasonably calibrated in lower<br/>and middle probability ranges"]
+    G3 --> G4["Some overestimation and underestimation<br/>at higher probability levels"]
+
+    H --> H1["Rank predictions from highest to lowest"]
+    H1 --> H2["Divide impressions into 10 deciles"]
+    H2 --> H3["Compare each decile CTR<br/>with overall CTR"]
+    H3 --> H4["<b>Top 10% CTR: 32.24%</b>"]
+    H4 --> H5["<b>Top-Decile Lift: 2.40×</b>"]
+    H5 --> H6["The highest-ranked impressions click<br/>2.4 times more than the overall average"]
+
+    D3 --> I["<b>EVALUATION DECISION LAYER</b>"]
+    E3 --> I
+    E6 --> I
+    F3 --> I
+    F8 --> I
+    G4 --> I
+    H6 --> I
+
+    I --> J["Probability predictions are useful"]
+    I --> K["Ranking performance is moderate"]
+    I --> L["Default threshold is unsuitable"]
+    I --> M["0.15 is the best tested F1 threshold"]
+    I --> N["Model successfully identifies<br/>high-value impression groups"]
+
+    J --> O["<b>FINAL MODEL ASSESSMENT</b>"]
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+
+    O --> P["Use Log Loss as primary metric"]
+    O --> Q["Use ROC-AUC and PR-AUC<br/>for ranking evaluation"]
+    O --> R["Select threshold based on<br/>business objective"]
+    O --> S["Use lift for campaign targeting<br/>and impression prioritization"]
+    O --> T["Monitor calibration and performance<br/>after production deployment"]
+
+    classDef main fill:#172554,stroke:#1e3a8a,stroke-width:4px,color:#ffffff;
+    classDef section fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#111827;
+    classDef process fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#111827;
+    classDef metric fill:#dcfce7,stroke:#15803d,stroke-width:2px,color:#111827;
+    classDef warning fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#111827;
+    classDef best fill:#ccfbf1,stroke:#0f766e,stroke-width:3px,color:#111827;
+    classDef decision fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#111827;
+    classDef final fill:#312e81,stroke:#1e1b4b,stroke-width:4px,color:#ffffff;
+
+    class A main;
+    class B,D,E,F,G,H section;
+    class B1,B2,C,D1,D3,E1,E3,E4,E6,F1,F4,F5,G1,G2,G4,H1,H2,H3 process;
+    class D2,E2,E5,G3,H3,H4 metric;
+    class F2,F3 warning;
+    class F6,F7,F8,H5,H6 best;
+    class I,J,K,L,M,N decision;
+    class O final;
+    class P,Q,R,S,T best;
+```    

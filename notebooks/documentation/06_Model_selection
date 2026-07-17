@@ -1,0 +1,106 @@
+# Model Selection — Avazu CTR Prediction
+```mermaid
+flowchart TB
+
+    A["<b>MODEL SELECTION PIPELINE</b><br/>Avazu CTR Prediction"]
+
+    A --> B["<b>Load Prepared Data</b><br/>26 engineered numerical features"]
+
+    B --> B1["Training Dataset<br/>28,300,276 records"]
+    B --> B2["Validation Dataset<br/>6,064,345 records"]
+
+    B1 --> C["<b>Chronological Sampling Strategy</b>"]
+    B2 --> C
+
+    C --> C1["Training Sample<br/>500,000 earliest records"]
+    C --> C2["Validation Sample<br/>1,000,000 earliest records"]
+
+    C1 --> C3["Preserve temporal order"]
+    C2 --> C3
+    C3 --> C4["Avoid random sampling<br/>and reduce time leakage risk"]
+
+    C1 --> D["<b>Model Preparation Layer</b>"]
+    C2 --> D
+
+    D --> D1["Scaled Pipeline"]
+    D --> D2["Tree-Based Pipeline"]
+
+    D1 --> E["StandardScaler"]
+    E --> E1["Fit scaler only on<br/>training sample"]
+    E1 --> E2["Transform training<br/>and validation data"]
+
+    E2 --> F["<b>Logistic Regression</b><br/>Linear baseline model"]
+
+    D2 --> G["<b>Decision Tree</b><br/>Nonlinear split rules<br/>Maximum depth: 10"]
+
+    D2 --> H["<b>Random Forest</b><br/>50 decision trees<br/>Maximum depth: 12"]
+
+    D2 --> I["<b>HistGradientBoosting</b><br/>100 boosting iterations<br/>Learning rate: 0.1<br/>Maximum depth: 8"]
+
+    F --> F1["Predict validation<br/>click probabilities"]
+    G --> G1["Predict validation<br/>click probabilities"]
+    H --> H1["Predict validation<br/>click probabilities"]
+    I --> I1["Predict validation<br/>click probabilities"]
+
+    F1 --> J["<b>Evaluation Layer</b>"]
+    G1 --> J
+    H1 --> J
+    I1 --> J
+
+    J --> J1["Log Loss<br/>Primary metric"]
+    J --> J2["ROC-AUC<br/>Ranking metric"]
+
+    J1 --> K["<b>Model Comparison</b>"]
+    J2 --> K
+
+    K --> K1["HistGradientBoosting<br/>Log Loss: 0.374304<br/>ROC-AUC: 0.658727"]
+
+    K --> K2["Random Forest<br/>Log Loss: 0.384422<br/>ROC-AUC: 0.642551"]
+
+    K --> K3["Logistic Regression<br/>Log Loss: 0.399155<br/>ROC-AUC: 0.621859"]
+
+    K --> K4["Decision Tree<br/>Log Loss: 0.605492<br/>ROC-AUC: 0.608850"]
+
+    K1 --> L["<b>MODEL SELECTION DECISION</b>"]
+    K2 --> L
+    K3 --> L
+    K4 --> L
+
+    L --> L1["Lowest Log Loss"]
+    L --> L2["Highest ROC-AUC"]
+    L --> L3["Captures nonlinear patterns"]
+    L --> L4["Efficient for large tabular datasets"]
+
+    L1 --> M["<b>SELECTED MODEL</b><br/>HistGradientBoosting"]
+    L2 --> M
+    L3 --> M
+    L4 --> M
+
+    M --> N["Save trained model<br/>using Joblib"]
+
+    N --> O["hist_gradient_model.pkl"]
+
+    O --> P["Load model in<br/>Evaluation Metrics Notebook"]
+
+    classDef main fill:#0f172a,stroke:#38bdf8,stroke-width:4px,color:#ffffff;
+    classDef data fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0f172a;
+    classDef preparation fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#0f172a;
+    classDef baseline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#0f172a;
+    classDef tree fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#0f172a;
+    classDef evaluation fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#0f172a;
+    classDef result fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#0f172a;
+    classDef best fill:#dcfce7,stroke:#15803d,stroke-width:4px,color:#052e16;
+    classDef weak fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
+    classDef output fill:#ccfbf1,stroke:#0f766e,stroke-width:3px,color:#042f2e;
+
+    class A main;
+    class B,B1,B2,C,C1,C2,C3,C4 data;
+    class D,D1,D2,E,E1,E2 preparation;
+    class F,F1 baseline;
+    class G,G1,H,H1,I,I1 tree;
+    class J,J1,J2,K,L,L1,L2,L3,L4 evaluation;
+    class K2,K3 result;
+    class K1,M best;
+    class K4 weak;
+    class N,O,P output;
+```   
